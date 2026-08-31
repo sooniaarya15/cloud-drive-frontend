@@ -6,6 +6,8 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import Toolbar from "@/components/Toolbar";
 import FileExplorer from "@/components/FileExplorer";
 import { folderService, fileService } from "@/lib/fileService";
+import { starService } from "@/lib/fileService";
+import { toast } from "@/components/Toast";
 
 export default function HomePage() {
   return (
@@ -33,10 +35,17 @@ export function DriveView({ folderId }) {
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    const handler = () => load();
+    window.addEventListener("uploads-finished", handler);
+    return () => window.removeEventListener("uploads-finished", handler);
+  }, [load]);
+
   const handleNewFolder = async () => {
     const name = prompt("Folder name");
     if (!name) return;
     await folderService.create({ name, parentId: folderId });
+    toast.success(`Folder "${name}" created`);
     load();
   };
 
@@ -47,28 +56,38 @@ export function DriveView({ folderId }) {
         window.open(signedUrl, "_blank");
       } else if (action === "rename") {
         const newName = prompt("New name", item.name);
-        if (newName) await fileService.update(item.id, { name: newName });
+        if (newName) {
+          await fileService.update(item.id, { name: newName });
+          toast.success("Renamed successfully");
+        }
         load();
       } else if (action === "trash") {
         await fileService.trash(item.id);
+        toast.success(`"${item.name}" moved to Trash`);
         load();
       } else if (action === "star") {
-        const { starService } = await import("@/lib/fileService");
         item.starred
           ? await starService.remove("file", item.id)
           : await starService.add("file", item.id);
+        toast.success(item.starred ? "Removed from starred" : "Added to starred");
         load();
       } else if (action === "share") {
         window.dispatchEvent(new CustomEvent("open-share-modal", { detail: item }));
+      } else if (action === "versions") {
+        window.dispatchEvent(new CustomEvent("open-versions", { detail: item }));
       }
     } else {
       if (action === "rename") {
         const newName = prompt("New name", item.name);
-        if (newName) await folderService.update(item.id, { name: newName });
+        if (newName) {
+          await folderService.update(item.id, { name: newName });
+          toast.success("Renamed successfully");
+        }
         load();
       } else if (action === "trash") {
         if (confirm(`Delete "${item.name}" and everything inside it?`)) {
           await folderService.delete(item.id);
+          toast.success(`"${item.name}" deleted`);
           load();
         }
       }

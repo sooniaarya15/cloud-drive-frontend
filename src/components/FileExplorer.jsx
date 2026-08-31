@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Folder, MoreVertical, Star, Download, Edit2, Trash2, Share2 } from "lucide-react";
+import { Folder, MoreVertical, Star, Download, Edit2, Trash2, Share2, History } from "lucide-react";
 import FileIcon from "./FileIcon";
-import { formatBytes, formatDate } from "@/utils/format";
+import { formatBytes } from "@/utils/format";
 
 export default function FileExplorer({ folders, files, onAction }) {
   const [menuOpenId, setMenuOpenId] = useState(null);
@@ -53,7 +53,8 @@ export default function FileExplorer({ folders, files, onAction }) {
       {files.map((file) => (
         <div
           key={file.id}
-          className="group relative border border-gray-100 rounded-xl p-4 flex flex-col items-center gap-2 hover:shadow-md transition bg-white"
+          onClick={() => window.dispatchEvent(new CustomEvent("open-preview", { detail: file }))}
+          className="group relative border border-gray-100 rounded-xl p-4 flex flex-col items-center gap-2 hover:shadow-md transition bg-white cursor-pointer"
         >
           <button
             onClick={(e) => { e.stopPropagation(); setMenuOpenId(menuOpenId === `x_${file.id}` ? null : `x_${file.id}`); }}
@@ -111,6 +112,7 @@ function FileMenu({ file, onAction, onClose }) {
     { label: "Download", icon: Download, action: "download" },
     { label: "Rename", icon: Edit2, action: "rename" },
     { label: "Share", icon: Share2, action: "share" },
+    { label: "Version history", icon: History, action: "versions" },
     { label: file.starred ? "Unstar" : "Star", icon: Star, action: "star" },
     { label: "Move to Trash", icon: Trash2, action: "trash", danger: true },
   ];
