@@ -4,6 +4,7 @@ import QueryProvider from "@/components/QueryProvider";
 import UploadModal from "@/components/UploadModal";
 import PreviewModal from "@/components/PreviewModal";
 import ToastContainer from "@/components/Toast";
+import ShareModal from "@/components/ShareModal";
 
 export const metadata = {
   title: "CloudDrive — Your files, everywhere",
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
             {children}
             <UploadModal />
             <PreviewModal />
+            <ShareModal />
             <ToastContainer />
           </AuthProvider>
         </QueryProvider>
