@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HardDrive, Users, Star, Clock, Trash2, LogOut } from "lucide-react";
+import { HardDrive, Users, Star, Clock, Trash2, LogOut, Search as SearchIcon } from "lucide-react";
 import { authService } from "@/lib/authService";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
@@ -39,6 +39,13 @@ export default function Sidebar() {
         </div>
         <span className="font-semibold text-gray-900">CloudDrive</span>
       </div>
+
+      <Link
+        href="/search"
+        className="flex items-center gap-2 px-3 py-2 mb-4 text-sm text-gray-400 border border-gray-200 rounded-lg hover:border-indigo-300"
+      >
+        <SearchIcon size={16} /> Search everywhere
+      </Link>
 
       <nav className="flex-1 space-y-1">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
