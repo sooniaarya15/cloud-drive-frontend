@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { X, Link2, Copy, Check, Trash2, Lock, Calendar } from "lucide-react";
+import { X, Link2, Copy, Check, Trash2, Lock, Calendar, Clock } from "lucide-react";
 import { shareService } from "@/lib/shareService";
 import { toast } from "./Toast";
 
@@ -47,13 +47,17 @@ export default function ShareModal() {
     e.preventDefault();
     setInviting(true);
     try {
-      await shareService.create({
+      const result = await shareService.create({
         resourceType: "file",
         resourceId: file.id,
         granteeEmail: email,
         role,
       });
-      toast.success(`Shared with ${email}`);
+      toast.success(
+        result.pending
+          ? `Invite sent to ${email} — they'll get access once they sign up`
+          : `Shared with ${email}`
+      );
       setEmail("");
       loadShares(file);
     } catch (err) {
@@ -104,6 +108,9 @@ export default function ShareModal() {
           {/* Invite by email */}
           <div>
             <h3 className="text-sm font-medium text-gray-700 mb-2">Share with people</h3>
+            <p className="text-xs text-gray-400 mb-2">
+              Works even if they don&apos;t have an account yet — they&apos;ll get access as soon as they sign up.
+            </p>
             <form onSubmit={handleInvite} className="flex gap-2">
               <input
                 type="email"
@@ -141,9 +148,21 @@ export default function ShareModal() {
               <div className="space-y-2">
                 {shares.map((s) => (
                   <div key={s.shareId} className="flex items-center justify-between text-sm">
-                    <div className="min-w-0">
-                      <p className="text-gray-800 truncate">{s.user.name}</p>
-                      <p className="text-xs text-gray-400 truncate">{s.user.email}</p>
+                    <div className="min-w-0 flex items-center gap-2">
+                      {s.pending && (
+                        <Clock size={13} className="text-amber-500 shrink-0" title="Pending — hasn't signed up yet" />
+                      )}
+                      <div className="min-w-0">
+                        <p className="text-gray-800 truncate">
+                          {s.user.name || s.user.email}
+                        </p>
+                        {s.user.name && (
+                          <p className="text-xs text-gray-400 truncate">{s.user.email}</p>
+                        )}
+                        {s.pending && (
+                          <p className="text-xs text-amber-500">Invited — not signed up yet</p>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full capitalize">

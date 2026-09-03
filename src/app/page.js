@@ -5,8 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import Toolbar from "@/components/Toolbar";
 import FileExplorer from "@/components/FileExplorer";
-import { folderService, fileService } from "@/lib/fileService";
-import { starService } from "@/lib/fileService";
+import { folderService, fileService, starService } from "@/lib/fileService";
 import { toast } from "@/components/Toast";
 
 export default function HomePage() {
@@ -102,9 +101,14 @@ export function DriveView({ folderId }) {
   );
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
-      <main className="flex-1 p-8">
+      <main className="flex-1 px-6 py-6 md:px-10 md:py-8 max-w-[1600px] mx-auto w-full">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-1">My Drive</h1>
+          <Breadcrumbs path={data.path} />
+        </div>
+
         <Toolbar
           onNewFolder={handleNewFolder}
           onUploadClick={() => window.dispatchEvent(new CustomEvent("open-upload", { detail: folderId }))}
@@ -113,14 +117,31 @@ export function DriveView({ folderId }) {
           search={search}
           onSearchChange={setSearch}
         />
-        <Breadcrumbs path={data.path} />
 
-        {loading ? (
-          <p className="text-sm text-gray-400">Loading...</p>
-        ) : (
-          <FileExplorer folders={filteredFolders} files={filteredFiles} onAction={handleAction} />
-        )}
+        <div className="mt-6">
+          {loading ? (
+            <LoadingGrid />
+          ) : (
+            <FileExplorer folders={filteredFolders} files={filteredFiles} onAction={handleAction} />
+          )}
+        </div>
       </main>
+    </div>
+  );
+}
+
+function LoadingGrid() {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div
+          key={i}
+          className="border border-gray-100 rounded-xl p-5 flex flex-col items-center gap-3 bg-white animate-pulse"
+        >
+          <div className="w-9 h-9 bg-gray-100 rounded-lg" />
+          <div className="h-3 bg-gray-100 rounded w-3/4" />
+        </div>
+      ))}
     </div>
   );
 }
